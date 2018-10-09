@@ -15,6 +15,7 @@ cursorVisible,
 curLineNum,
 curLine,
 curLineCharCount,
+workingDirectory,
 maxChars;
 
 
@@ -30,8 +31,15 @@ function init () {
 	curLine = document.getElementById('line1');
 	curLineNum = 1; 
 	cursorVisible = true; 
-	maxChars = 77;
+	maxChars = 80;
 	curLineCharCount = 0; 
+
+	var home = Directory("/");
+	var p = Directory("projects"); 
+	var g = Directory("games"); 
+	home.children.push(p,g); 
+
+	workingDirectory = home;
 
 	// start cursor blink
 	// window.setInterval(function() {
@@ -125,12 +133,18 @@ run <file>    execute FILE
 }
 
 function cmdLs(args) {
-
+	// print out the immediate children of this directory
+	for (var i=0; i<workingDirectory.children.length; i++) {
+		cPrint(workingDirectory.children[i].name);
+		createNewline(); 
+	}
 }
 
 function cmdPwd(args) {
-
+	cPrint(workingDirectory.name);
+	createNewline();
 }
+
 function cmdCd(args) {
 
 }
