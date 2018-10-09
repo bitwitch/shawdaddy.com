@@ -1,0 +1,36 @@
+@font-face {
+	font-family: 'Topaz';
+	src: url('assets/topaz.ttf');
+}
+
+/* pixelated */
+@font-face {
+	font-family: 'Amiga Topaz';
+	src: url('assets/amiga_topaz.ttf');
+}
+
+#screen {
+	position: relative;
+	background-color: #440eac;
+	width: 760px;
+	height: 570px;
+	padding: 25px; 
+}
+
+#cursor {
+	height: 18px;
+	width: 9px; 
+	background-color: #8d6ff5;
+	display: inline-block;
+	margin: 0; 
+}
+
+.line {
+	font-family: 'Amiga Topaz';
+	font-size: 20px;
+	margin: 0; 
+	color: #8d6ff5;
+	text-transform: uppercase;
+}
+
+
