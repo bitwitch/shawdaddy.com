@@ -30,7 +30,7 @@ function init () {
 	cursor = document.getElementById('cursor');
 	curLine = document.getElementById('line1');
 	curLineNum = 1; 
-	cursorVisible = true; 
+	cursorVisible = true;
 	maxChars = 80;
 	curLineCharCount = 0; 
 
@@ -160,8 +160,9 @@ function deleteChar() {
 function createNewline() {
 	var newLine = document.createElement('pre');
 	newLine.id = 'line' + curLineNum++; 
-	newLine.className = 'line'; 
-	compScreen.appendChild(newLine); 
+	newLine.className = 'line cursor';
+	curLine.className = 'line'; 
+	compScreen.appendChild(newLine);
 	curLine = newLine;
 }
 
