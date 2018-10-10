@@ -34,9 +34,15 @@ function init () {
 	maxChars = 80;
 	curLineCharCount = 0; 
 
+	// init directories TODO(shaw): cleanup
 	var home = Directory("/");
 	var p = Directory("projects"); 
-	var g = Directory("games"); 
+	var c = Directory("classified"); 
+	var g = Directory("games");
+	g.parent = home; 
+	p.parent = home;
+	c.parent = p;
+	p.children.push(c);
 	home.children.push(p,g); 
 
 	workingDirectory = home;
@@ -141,14 +147,49 @@ function cmdLs(args) {
 }
 
 function cmdPwd(args) {
-	cPrint(workingDirectory.name);
+	var reversePath = [];
+	var cursor = workingDirectory.parent;
+
+	// get path from home dir
+	while (cursor) {
+		reversePath.push(cursor.name); 
+		cursor = cursor.parent; 
+	}
+
+	console.log("rev path: ", reversePath);
+
+	// print path from home dir
+	for (var i = reversePath.length - 1; i >= 0; i--) {
+		if (reversePath[i] != "/") {
+			cWrite(reversePath[i]);
+		}
+		cWrite("/");
+	}
+
+	cWrite(workingDirectory.name);
 	createNewline();
 }
 
 function cmdCd(args) {
+	console.log("ARGS: ", args);
+	var dir = args[0];
 
+	if (workingDirectory.parent && workingDirectory.parent.name == dir) {
+		workingDirectory = workingDirectory.parent;
+		return;
+	}
+
+	for (var i=0; i<workingDirectory.children.length; i++) {
+		if (workingDirectory.children[i].name === dir) {
+			workingDirectory = workingDirectory.children[i]; 
+			return;
+		}
+	}
+
+	// if directory or file not found
+	cPrint("No such file or directory");
+	createNewline();
 }
-
 // Utilities
 function deleteChar() {
 	var text = curLine.textContent;
@@ -164,6 +205,14 @@ function createNewline() {
 	curLine.className = 'line'; 
 	compScreen.appendChild(newLine);
 	curLine = newLine;
+}
+
+function cWrite(message) {
+	console.log("curline: ", curLine);
+	console.log("text content before: ", curLine.textContent);
+	curLine.textContent += message;
+	console.log('curline id: ', curLine.id);
+	console.log("text content after: ", curLine.textContent);
 }
 
 function cPrint(message) {
