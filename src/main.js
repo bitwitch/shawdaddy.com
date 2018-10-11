@@ -7,16 +7,18 @@ var commands = {
 	"ls" : cmdLs,
 	"cat": cmdCat,
 	"pwd" : cmdPwd,	
+	"run" : cmdRun
 }; 
 
 // globals
 var compScreen, 
+overlay,
 cursor, 
 cursorVisible, 
 curLineNum,
 curLine,
 curLineCharCount,
-ROOT,
+root,
 workingDirectory,
 prompt,
 maxChars;
@@ -30,6 +32,7 @@ init();
 function init () {
 	window.addEventListener('keydown', handleInput); 
 	compScreen = document.getElementById('screen');
+	overlay = document.getElementById('overlay');
 	cursor = document.getElementById('cursor');
 	curLine = document.getElementById('line1');
 	curLineNum = 1; 
@@ -58,17 +61,19 @@ function initFilesystem() {
 	p.parent = home;
 	c.parent = p;
 	p.children.push(c);
-	home.children.push(p,g,f); 
+	home.children.push(p,g); 
 
 	var roofer = Executable("roofer");
-	roofer.script = "roofer.js";
+	roofer.parent = g;
+	g.children.push(roofer);
 
 	var f = File("readme.txt"); 
 	f.contents = "Welcome to the SD6969DX. Let's hack.";
 	f.parent = home;
+	home.children.push(f);
 	
 	
-	ROOT = home;
+	root = home;
 	
 	workingDirectory = home;
 }
@@ -166,6 +171,7 @@ run <file>    execute FILE
 	); 
 }
 
+// TODO(shaw): handle ls with directory as argument
 function cmdLs(args) {
 	// print out the immediate children of this directory
 	for (var i=0; i<workingDirectory.children.length; i++) {
@@ -211,7 +217,7 @@ function cmdCat(args) {
 	console.log("searching for: ", filename);
 	
 	// traverse the filesystem, for each leaf, check if it matches the arg, print its contents if it does
-	var queue = [ROOT]; 
+	var queue = [root]; 
 	while (queue.length > 0) {
 		var current = queue.shift();
 
@@ -233,6 +239,8 @@ function cmdCat(args) {
 
 }
 
+
+// TODO(shaw): handle the case of a path instead of a single directory
 function cmdCd(args) {
 
 	if (args.length > 1) {
@@ -242,7 +250,14 @@ function cmdCd(args) {
 
 	var dir = args[0];
 
-	if (workingDirectory.parent && workingDirectory.parent.name == dir) {
+	// root directory
+	if (dir == "/") {
+		workingDirectory = root;
+		return;
+	}
+
+	// .. to go up a directory
+	if (dir == ".." && workingDirectory.parent) {
 		workingDirectory = workingDirectory.parent;
 		return;
 	}
@@ -258,6 +273,31 @@ function cmdCd(args) {
 	cPrint("No such file or directory");
 	createNewline();
 }
+
+function cmdRun(args) {
+	var exe = args[0]; 
+
+	// search working directory for exe 
+	for (var i=0; i<workingDirectory.children.length; i++) {
+		if (workingDirectory.children[i].name == exe) {
+			run(exe); 
+		}
+	}
+}
+
+function run(exe) {
+	switch(exe) {
+		case "roofer": 
+			initRoofer(); 
+			break;
+	}
+}
+
+function initRoofer() {
+	overlay.style.display = 'block';
+}
+
+
 // Utilities
 function deleteChar() {
 	var text = curLine.textContent;
