@@ -5,6 +5,7 @@ var commands = {
 	"help" : cmdHelp,
 	"cd" : cmdCd,
 	"ls" : cmdLs,
+	"cat": cmdCat,
 	"pwd" : cmdPwd,	
 }; 
 
@@ -15,7 +16,9 @@ cursorVisible,
 curLineNum,
 curLine,
 curLineCharCount,
+ROOT,
 workingDirectory,
+prompt,
 maxChars;
 
 
@@ -33,19 +36,10 @@ function init () {
 	cursorVisible = true;
 	maxChars = 80;
 	curLineCharCount = 0; 
+	prompt = ">>$ ";
 
-	// init directories TODO(shaw): cleanup
-	var home = Directory("/");
-	var p = Directory("projects"); 
-	var c = Directory("classified"); 
-	var g = Directory("games");
-	g.parent = home; 
-	p.parent = home;
-	c.parent = p;
-	p.children.push(c);
-	home.children.push(p,g); 
-
-	workingDirectory = home;
+	// init directories and files 
+	initFilesystem();
 
 	// start cursor blink
 	// window.setInterval(function() {
@@ -54,13 +48,47 @@ function init () {
 	// }, 500); 
 }
 
+// TODO(shaw): cleanup
+function initFilesystem() {
+	var home = Directory("/");
+	var p = Directory("projects"); 
+	var c = Directory("classified"); 
+	var g = Directory("games");
+	g.parent = home; 
+	p.parent = home;
+	c.parent = p;
+	p.children.push(c);
+	home.children.push(p,g,f); 
+
+	var roofer = Executable("roofer");
+	roofer.script = "roofer.js";
+
+	var f = File("readme.txt"); 
+	f.contents = "Welcome to the SD6969DX. Let's hack.";
+	f.parent = home;
+	
+	
+	ROOT = home;
+	
+	workingDirectory = home;
+}
+
 function handleEnter() {
 	// parse the current line
-	var sanitized = curLine.textContent.toLowerCase().trim().split(' '); 
+	var sanitized = curLine.textContent
+					.replace(prompt, "")
+					.toLowerCase()
+					.trim()
+					.split(' ');
 	var cmd = sanitized[0];
 	var args = sanitized.slice(1); 
 
-	console.log(cmd); 
+	if (cmd == "") {
+		createNewline();
+		return;
+	}
+
+	console.log("COMMAND: ", cmd); 
 
 	// check for a recognized command
 	if (commands[cmd]) {
@@ -70,7 +98,6 @@ function handleEnter() {
 	} else {
 		createNewline(); 
 		cPrint("Unrecognized command, type help to view commands."); 
-		createNewline(); 
 	}
 }
 
@@ -101,7 +128,7 @@ function handleInput(e) {
 	else if (e.keyCode === 190) 
 		char = '.';
 	else if (e.keyCode === 191) 
-		char = '?';
+		char = '/';
 	else if (e.keyCode === 192) 
 		char = '`';
 	else if (e.keyCode === 219) 
@@ -133,6 +160,7 @@ function cmdHelp(args) {
 `cd <dir>      change the current directory to DIR
 ls            list directory contents
 pwd           print the current working directory
+cat <file>    copies each FILE (or standard input) to standard output
 run <file>    execute FILE
 `
 	); 
@@ -142,7 +170,6 @@ function cmdLs(args) {
 	// print out the immediate children of this directory
 	for (var i=0; i<workingDirectory.children.length; i++) {
 		cPrint(workingDirectory.children[i].name);
-		createNewline(); 
 	}
 }
 
@@ -159,19 +186,60 @@ function cmdPwd(args) {
 	console.log("rev path: ", reversePath);
 
 	// print path from home dir
+	var pathString = "";
 	for (var i = reversePath.length - 1; i >= 0; i--) {
 		if (reversePath[i] != "/") {
-			cWrite(reversePath[i]);
+			pathString += reversePath[i];
 		}
-		cWrite("/");
+		pathString += "/";
+	}
+	pathString += workingDirectory.name;
+	cPrint(pathString);
+}
+
+function cmdCat(args) {
+	var path = args[0];
+
+	if (!path || path == "") {
+		cPrint("cat must be called with more than zero arguments"); 
+		return;
+	}
+	
+	// parse filename from the path
+	var filename = path; 
+
+	console.log("searching for: ", filename);
+	
+	// traverse the filesystem, for each leaf, check if it matches the arg, print its contents if it does
+	var queue = [ROOT]; 
+	while (queue.length > 0) {
+		var current = queue.shift();
+
+		if (!current.children || current.children.length == 0) { // if leaf
+			console.log("leaf found: ", current.name);
+			
+			// do check
+			if (current.name.toLowerCase() == filename.toLowerCase()) {
+				console.log('file found: ', filename); 
+				cPrint(current.contents); 
+			}
+
+		} else {
+			for (var i=0; i<current.children.length; i++) {
+				queue.push(current.children[i]);
+			}
+		}
 	}
 
-	cWrite(workingDirectory.name);
-	createNewline();
 }
 
 function cmdCd(args) {
-	console.log("ARGS: ", args);
+
+	if (args.length > 1) {
+		cPrint("Too many arguments: CD takes a single file or directory");
+		return;
+	}
+
 	var dir = args[0];
 
 	if (workingDirectory.parent && workingDirectory.parent.name == dir) {
@@ -179,7 +247,7 @@ function cmdCd(args) {
 		return;
 	}
 
-	for (var i=0; i<workingDirectory.children.length; i++) {
+	for (var i=0; i<workingDirectory.children.length; i++) { 
 		if (workingDirectory.children[i].name === dir) {
 			workingDirectory = workingDirectory.children[i]; 
 			return;
@@ -201,6 +269,7 @@ function deleteChar() {
 function createNewline() {
 	var newLine = document.createElement('pre');
 	newLine.id = 'line' + curLineNum++; 
+	newLine.textContent = prompt;
 	newLine.className = 'line cursor';
 	curLine.className = 'line'; 
 	compScreen.appendChild(newLine);
