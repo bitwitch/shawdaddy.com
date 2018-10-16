@@ -1,0 +1,1 @@
+var _fof = "FOF";
