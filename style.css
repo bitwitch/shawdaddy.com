@@ -9,15 +9,36 @@
 	src: url('assets/amiga_topaz.ttf');
 }
 
+body { background-color: #0D0230}	
+
 #screen {
 	position: relative;
-	background-color: #440eac;
+	background-color: #440EAC;
 	padding: 100px 275px 100px 100px;
 	width: 850px; 
 	height: 650px;
 	z-index: 0;
 	background-image: url('assets/monitor2.png');
 	border-radius: 10px;
+	margin: 0 auto;
+	/* box-shadow: 0 0 20px 10px #440EAC, 
+				0 0 103px 14px #540cc6, 
+				0 0 10px 10px #0ff; */
+}
+
+
+#glow {
+	position: absolute;
+	z-index: -1;
+	top: 100px;
+	left: 75px;
+    width: 850px;
+    height: 650px;
+    border-radius: 10px;
+    background-color: #440EAC;
+	box-shadow: 0 0 20px 10px #440EAC, 
+				0 0 103px 14px #540cc6, 
+				0 0 10px 10px #0ff
 }
 
 #overlay {
