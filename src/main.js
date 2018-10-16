@@ -251,6 +251,8 @@ function cmdCls(args) {
 	for (var i=0; i<linesDelete.length; i++) {
 		linesDelete[i].parentNode.removeChild(linesDelete[i]);
 	}
+	
+	curLine.style.paddingTop = '15px';
 }
 
 
