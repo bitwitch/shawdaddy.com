@@ -9,6 +9,11 @@
 	src: url('assets/amiga_topaz.ttf');
 }
 
+@font-face {
+	font-family: 'Pencil';
+	src: url('assets/cheveuxdange.ttf');
+}
+
 body { background-color: #0D0230}	
 
 #screen {
@@ -26,6 +31,20 @@ body { background-color: #0D0230}
 				0 0 10px 10px #0ff; */
 }
 
+#sticky1 {
+	position: absolute;
+	right: 40px;
+	top: 25%;
+	width: 135px;
+	height: 100px; 
+	background-color: yellow;
+	transform: rotate(-10deg);
+	padding: 15px;
+	font-family: 'Pencil'; 
+	/* text-transform: uppercase; */
+}
+
+#sticky1 div { margin-bottom: 5px; }
 
 #glow {
 	position: absolute;
