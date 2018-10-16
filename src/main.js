@@ -3,11 +3,12 @@ document.addEventListener('DOMContentLoaded', function(){
 // commands dispatch
 var commands = {
 	"help" : cmdHelp,
-	"cd" : cmdCd,
-	"ls" : cmdLs,
-	"cat": cmdCat,
-	"pwd" : cmdPwd,	
-	"run" : cmdRun
+	"cd"   : cmdCd,
+	"ls"   : cmdLs,
+	"cat"  : cmdCat,
+	"pwd"  : cmdPwd,	
+	"run"  : cmdRun,
+	"cls"  : cmdCls
 }; 
 
 // globals
@@ -30,7 +31,7 @@ init();
 
 // functions
 function init () {
-	window.addEventListener('keydown', handleInput); 
+	document.addEventListener('keydown', handleInput);
 	compScreen = document.getElementById('screen');
 	overlay = document.getElementById('overlay');
 	cursor = document.getElementById('cursor');
@@ -53,7 +54,7 @@ function init () {
 
 // TODO(shaw): cleanup
 function initFilesystem() {
-	var home = Directory("/");
+	var home = Directory("/home");
 	var p = Directory("projects"); 
 	var c = Directory("classified"); 
 	var g = Directory("games");
@@ -167,6 +168,7 @@ ls            list directory contents
 pwd           print the current working directory
 cat <file>    copies each FILE (or standard input) to standard output
 run <file>    execute FILE
+cls           clear screen
 `
 	); 
 }
@@ -188,8 +190,6 @@ function cmdPwd(args) {
 		reversePath.push(cursor.name); 
 		cursor = cursor.parent; 
 	}
-
-	console.log("rev path: ", reversePath);
 
 	// print path from home dir
 	var pathString = "";
@@ -239,6 +239,20 @@ function cmdCat(args) {
 
 }
 
+function cmdCls(args) {
+	var lines = document.getElementsByClassName('line'); 
+	var linesDelete = [];
+	for (var i=0; i<lines.length; i++) {
+		if (lines[i].id !== curLine.id) {
+			linesDelete.push(lines[i]); 
+		}
+	}
+
+	for (var i=0; i<linesDelete.length; i++) {
+		linesDelete[i].parentNode.removeChild(linesDelete[i]);
+	}
+}
+
 
 // TODO(shaw): handle the case of a path instead of a single directory
 function cmdCd(args) {
@@ -263,6 +277,7 @@ function cmdCd(args) {
 	}
 
 	for (var i=0; i<workingDirectory.children.length; i++) { 
+		// TODO(shaw): check if the child is a directory
 		if (workingDirectory.children[i].name === dir) {
 			workingDirectory = workingDirectory.children[i]; 
 			return;
@@ -288,13 +303,34 @@ function cmdRun(args) {
 function run(exe) {
 	switch(exe) {
 		case "roofer": 
-			initRoofer(); 
+			runRoofer(); 
 			break;
 	}
 }
 
-function initRoofer() {
+function runRoofer() {
 	overlay.style.display = 'block';
+
+	// pause listening for events on the terminal 
+	document.removeEventListener('keydown', handleInput); 
+
+
+	roofer.init();
+	roofer.startGame();
+	// roofer.playMusic();
+
+	document.addEventListener('keypress', function exitOnPressEscape(e) {
+		console.log("code: ", e.code); 
+		if (e.code === "KeyQ") {
+			roofer.quit = true; 
+			// roofer.pauseMusic(); 
+			document.addEventListener('keydown', handleInput);
+			overlay.style.display = 'none'; 
+			document.removeEventListener('keypress', exitOnPressEscape); 
+		}
+	}); 
+
+
 }
 
 
