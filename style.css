@@ -9,6 +9,8 @@
 	src: url('assets/amiga_topaz.ttf');
 }
 
+body { background-color: #0D0230}	
+
 #screen {
 	position: relative;
 	background-color: #440eac;
@@ -18,6 +20,22 @@
 	z-index: 0;
 	background-image: url('assets/monitor2.png');
 	border-radius: 10px;
+	margin: 0 auto;
+}
+
+
+#glow {
+	position: absolute;
+	top: 100px;
+	left: 75px;
+    width: 850px;
+    height: 650px;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow:
+        0 0 60px 30px #fff,  /* inner white */
+        0 0 100px 60px #f0f, /* middle magenta */
+        0 0 140px 90px #0ff; /* outer cyan */
 }
 
 #overlay {
