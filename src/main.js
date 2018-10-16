@@ -3,20 +3,23 @@ document.addEventListener('DOMContentLoaded', function(){
 // commands dispatch
 var commands = {
 	"help" : cmdHelp,
-	"cd" : cmdCd,
-	"ls" : cmdLs,
-	"cat": cmdCat,
-	"pwd" : cmdPwd,	
+	"cd"   : cmdCd,
+	"ls"   : cmdLs,
+	"cat"  : cmdCat,
+	"pwd"  : cmdPwd,	
+	"run"  : cmdRun,
+	"cls"  : cmdCls
 }; 
 
 // globals
 var compScreen, 
+overlay,
 cursor, 
 cursorVisible, 
 curLineNum,
 curLine,
 curLineCharCount,
-ROOT,
+root,
 workingDirectory,
 prompt,
 maxChars;
@@ -28,8 +31,9 @@ init();
 
 // functions
 function init () {
-	window.addEventListener('keydown', handleInput); 
+	document.addEventListener('keydown', handleInput);
 	compScreen = document.getElementById('screen');
+	overlay = document.getElementById('overlay');
 	cursor = document.getElementById('cursor');
 	curLine = document.getElementById('line1');
 	curLineNum = 1; 
@@ -50,7 +54,7 @@ function init () {
 
 // TODO(shaw): cleanup
 function initFilesystem() {
-	var home = Directory("/");
+	var home = Directory("/home");
 	var p = Directory("projects"); 
 	var c = Directory("classified"); 
 	var g = Directory("games");
@@ -58,17 +62,19 @@ function initFilesystem() {
 	p.parent = home;
 	c.parent = p;
 	p.children.push(c);
-	home.children.push(p,g,f); 
+	home.children.push(p,g); 
 
 	var roofer = Executable("roofer");
-	roofer.script = "roofer.js";
+	roofer.parent = g;
+	g.children.push(roofer);
 
 	var f = File("readme.txt"); 
 	f.contents = "Welcome to the SD6969DX. Let's hack.";
 	f.parent = home;
+	home.children.push(f);
 	
 	
-	ROOT = home;
+	root = home;
 	
 	workingDirectory = home;
 }
@@ -162,10 +168,12 @@ ls            list directory contents
 pwd           print the current working directory
 cat <file>    copies each FILE (or standard input) to standard output
 run <file>    execute FILE
+cls           clear screen
 `
 	); 
 }
 
+// TODO(shaw): handle ls with directory as argument
 function cmdLs(args) {
 	// print out the immediate children of this directory
 	for (var i=0; i<workingDirectory.children.length; i++) {
@@ -182,8 +190,6 @@ function cmdPwd(args) {
 		reversePath.push(cursor.name); 
 		cursor = cursor.parent; 
 	}
-
-	console.log("rev path: ", reversePath);
 
 	// print path from home dir
 	var pathString = "";
@@ -211,7 +217,7 @@ function cmdCat(args) {
 	console.log("searching for: ", filename);
 	
 	// traverse the filesystem, for each leaf, check if it matches the arg, print its contents if it does
-	var queue = [ROOT]; 
+	var queue = [root]; 
 	while (queue.length > 0) {
 		var current = queue.shift();
 
@@ -233,6 +239,22 @@ function cmdCat(args) {
 
 }
 
+function cmdCls(args) {
+	var lines = document.getElementsByClassName('line'); 
+	var linesDelete = [];
+	for (var i=0; i<lines.length; i++) {
+		if (lines[i].id !== curLine.id) {
+			linesDelete.push(lines[i]); 
+		}
+	}
+
+	for (var i=0; i<linesDelete.length; i++) {
+		linesDelete[i].parentNode.removeChild(linesDelete[i]);
+	}
+}
+
+
+// TODO(shaw): handle the case of a path instead of a single directory
 function cmdCd(args) {
 
 	if (args.length > 1) {
@@ -242,12 +264,20 @@ function cmdCd(args) {
 
 	var dir = args[0];
 
-	if (workingDirectory.parent && workingDirectory.parent.name == dir) {
+	// root directory
+	if (dir == "/") {
+		workingDirectory = root;
+		return;
+	}
+
+	// .. to go up a directory
+	if (dir == ".." && workingDirectory.parent) {
 		workingDirectory = workingDirectory.parent;
 		return;
 	}
 
 	for (var i=0; i<workingDirectory.children.length; i++) { 
+		// TODO(shaw): check if the child is a directory
 		if (workingDirectory.children[i].name === dir) {
 			workingDirectory = workingDirectory.children[i]; 
 			return;
@@ -258,6 +288,52 @@ function cmdCd(args) {
 	cPrint("No such file or directory");
 	createNewline();
 }
+
+function cmdRun(args) {
+	var exe = args[0]; 
+
+	// search working directory for exe 
+	for (var i=0; i<workingDirectory.children.length; i++) {
+		if (workingDirectory.children[i].name == exe) {
+			run(exe); 
+		}
+	}
+}
+
+function run(exe) {
+	switch(exe) {
+		case "roofer": 
+			runRoofer(); 
+			break;
+	}
+}
+
+function runRoofer() {
+	overlay.style.display = 'block';
+
+	// pause listening for events on the terminal 
+	document.removeEventListener('keydown', handleInput); 
+
+
+	roofer.init();
+	roofer.startGame();
+	// roofer.playMusic();
+
+	document.addEventListener('keypress', function exitOnPressEscape(e) {
+		console.log("code: ", e.code); 
+		if (e.code === "KeyQ") {
+			roofer.quit = true; 
+			// roofer.pauseMusic(); 
+			document.addEventListener('keydown', handleInput);
+			overlay.style.display = 'none'; 
+			document.removeEventListener('keypress', exitOnPressEscape); 
+		}
+	}); 
+
+
+}
+
+
 // Utilities
 function deleteChar() {
 	var text = curLine.textContent;
