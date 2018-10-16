@@ -13,7 +13,7 @@ body { background-color: #0D0230}
 
 #screen {
 	position: relative;
-	background-color: #440eac;
+	background-color: #440EAC;
 	padding: 100px 275px 100px 100px;
 	width: 850px; 
 	height: 650px;
@@ -21,21 +21,24 @@ body { background-color: #0D0230}
 	background-image: url('assets/monitor2.png');
 	border-radius: 10px;
 	margin: 0 auto;
+	/* box-shadow: 0 0 20px 10px #440EAC, 
+				0 0 103px 14px #540cc6, 
+				0 0 10px 10px #0ff; */
 }
 
 
 #glow {
 	position: absolute;
+	z-index: -1;
 	top: 100px;
 	left: 75px;
     width: 850px;
     height: 650px;
     border-radius: 10px;
-    background-color: #fff;
-    box-shadow:
-        0 0 60px 30px #fff,  /* inner white */
-        0 0 100px 60px #f0f, /* middle magenta */
-        0 0 140px 90px #0ff; /* outer cyan */
+    background-color: #440EAC;
+	box-shadow: 0 0 20px 10px #440EAC, 
+				0 0 103px 14px #540cc6, 
+				0 0 10px 10px #0ff
 }
 
 #overlay {
