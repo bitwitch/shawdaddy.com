@@ -41,7 +41,7 @@ body { background-color: #0D0230}
 	transform: rotate(-10deg);
 	padding: 15px;
 	font-family: 'Pencil'; 
-	/* text-transform: uppercase; */
+	box-shadow: 5px 5px 25px 5px #222; 
 }
 
 #sticky1 div { margin-bottom: 5px; }
