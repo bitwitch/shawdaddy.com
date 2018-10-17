@@ -14,7 +14,15 @@
 	src: url('assets/cheveuxdange.ttf');
 }
 
-body { background-color: #0D0230}	
+body { background-color: #0D0230; }
+
+.container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	min-height: 98vh;
+}
+
 
 #screen {
 	position: relative;
