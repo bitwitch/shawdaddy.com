@@ -3,6 +3,7 @@ function Directory(name) {
 	dir.name = name;
 	dir.children = []; 
 	dir.parent = null; 
+	dir.type = "directory";
 	return dir;
 }
 
@@ -11,6 +12,7 @@ function File(name) {
 	file.name = name;
 	file.parent = null;
 	file.contents = "";
+	file.type = "file";
 	return file;
 }
 
@@ -19,6 +21,7 @@ function Executable(name) {
 	exe.name = name; 
 	exe.parent = null; 
 	exe.script = null; 
+	exe.type = "executable";
 	return exe;
 }
 
