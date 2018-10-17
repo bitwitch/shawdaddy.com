@@ -8,8 +8,10 @@ var commands = {
 	"cat"  : cmdCat,
 	"pwd"  : cmdPwd,	
 	"run"  : cmdRun,
-	"cls"  : cmdCls
-}; 
+	"cls"  : cmdCls,
+	"mkdir": cmdMkdir,
+	"touch": cmdTouch
+};
 
 // globals
 var compScreen, 
@@ -55,9 +57,9 @@ function init () {
 // TODO(shaw): cleanup
 function initFilesystem() {
 	var home = Directory("/home");
-	var p = Directory("projects"); 
-	var c = Directory("classified"); 
-	var g = Directory("games");
+	var p    = Directory("projects"); 
+	var c    = Directory("classified"); 
+	var g    = Directory("games");
 	g.parent = home; 
 	p.parent = home;
 	c.parent = p;
@@ -251,7 +253,7 @@ function cmdCls(args) {
 	for (var i=0; i<linesDelete.length; i++) {
 		linesDelete[i].parentNode.removeChild(linesDelete[i]);
 	}
-	
+
 	curLine.style.paddingTop = '15px';
 }
 
@@ -288,7 +290,20 @@ function cmdCd(args) {
 
 	// if directory or file not found
 	cPrint("No such file or directory");
-	createNewline();
+}
+
+function cmdMkdir(args) {
+	var message = args.length > 0
+		? "mkdir: " + args.join(': ') + ": Permission denied"
+		: "mkdir: Permission denied";
+	cPrint(message); 
+}
+
+function cmdTouch(args) {
+	var message = args.length > 0
+		? "touch: " + args.join(': ') + ": Permission denied"
+		: "touch: Permission denied";
+	cPrint(message); 
 }
 
 function cmdRun(args) {
@@ -306,6 +321,9 @@ function run(exe) {
 	switch(exe) {
 		case "roofer": 
 			runRoofer(); 
+			break;
+		default:
+			cPrint("Executable not found");
 			break;
 	}
 }
