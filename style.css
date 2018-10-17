@@ -107,4 +107,20 @@ body { background-color: #0D0230; }
 
 #line0 { padding-top: 15px; }
 
+.mobile {
+	display: none;
+	color: #fff;
+	padding-left: 15px;
+}
+
+.exception {
+	color: #f00;
+	font-weight: bold;
+}
+
+@media (max-width: 768px) {
+	.mobile { display: block; }
+	#screen { display: none; }
+}
+
 
