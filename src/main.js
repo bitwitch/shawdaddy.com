@@ -13,19 +13,21 @@ var commands = {
 	"touch": cmdTouch
 };
 
+// constants
+var OFFSET_FROM_TOP_OF_MONITOR = 724,
+	MAX_CHARS = 80;
+
 // globals
 var compScreen, 
-overlay,
-cursor, 
-cursorVisible, 
-curLineNum,
-curLine,
-curLineCharCount,
-root,
-workingDirectory,
-prompt,
-maxChars;
-
+	overlay,
+	curLineNum,
+	curLine,
+	curLineCharCount,
+	visibleCount,
+	root,
+	workingDirectory,
+	prompt;
+	
 
 // entry point
 init(); 
@@ -36,22 +38,14 @@ function init () {
 	document.addEventListener('keydown', handleInput);
 	compScreen = document.getElementById('screen');
 	overlay = document.getElementById('overlay');
-	cursor = document.getElementById('cursor');
 	curLine = document.getElementById('line1');
 	curLineNum = 1; 
-	cursorVisible = true;
-	maxChars = 80;
+	visibleCount = 1;
 	curLineCharCount = 0; 
 	prompt = ">>$ ";
 
 	// init directories and files 
 	initFilesystem();
-
-	// start cursor blink
-	// window.setInterval(function() {
-	// 	cursor.style.visibility =  cursorVisible ? 'visible' : 'hidden'; 
-	// 	cursorVisible = !cursorVisible; 
-	// }, 500); 
 }
 
 // TODO(shaw): cleanup
@@ -154,7 +148,7 @@ function handleInput(e) {
 	}
 	
 	// console.log('keycode: ', e.keyCode);
-	if (curLineCharCount >= maxChars) {
+	if (curLineCharCount >= MAX_CHARS) {
 		curLine.textContent += '\n'; 
 		curLineCharCount = 0;
 	}
@@ -281,9 +275,17 @@ function cmdCd(args) {
 	}
 
 	for (var i=0; i<workingDirectory.children.length; i++) { 
-		// TODO(shaw): check if the child is a directory
-		if (workingDirectory.children[i].name === dir) {
-			workingDirectory = workingDirectory.children[i]; 
+		var current = workingDirectory.children[i];
+
+		if (current.name === dir) {
+
+			if (current.type !== "directory") {
+				var message = current.name + " is a " + current.type + " not a directory";
+				cPrint(message);
+				return
+			}
+
+			workingDirectory = current; 
 			return;
 		}
 	}
@@ -359,7 +361,7 @@ function deleteChar() {
 	var text = curLine.textContent;
 	curLine.textContent = text.slice(0, text.length - 1); 
 	// TODO(shaw): take a closer look at text wrapping 
-	curLineCharCount =  (text[text.length-1] === '\n') ? maxChars : curLineCharCount - 1; 
+	curLineCharCount =  (text[text.length-1] === '\n') ? MAX_CHARS : curLineCharCount - 1; 
 }
 
 function createNewline() {
@@ -370,6 +372,12 @@ function createNewline() {
 	curLine.className = 'line'; 
 	compScreen.appendChild(newLine);
 	curLine = newLine;
+
+
+	// TODO(shaw): this is placeholder screen overflow, fix this shit later
+	if (curLine.offsetTop >= OFFSET_FROM_TOP_OF_MONITOR) {
+		cmdCls(); 
+	}
 }
 
 function cWrite(message) {
