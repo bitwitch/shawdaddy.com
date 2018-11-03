@@ -13,6 +13,11 @@ var commands = {
 	"touch": cmdTouch
 };
 
+// TODO(shaw): KONAMI code
+// add an event listener
+// have the code saved as array, and have a pointer to current position in the code
+
+
 // constants
 var OFFSET_FROM_TOP_OF_MONITOR = 724,
 	MAX_CHARS = 80;
@@ -104,50 +109,58 @@ function handleEnter() {
 }
 
 function handleInput(e) {
+
+	// konami code
+	konami(e.key);
+
 	// handle delete
-	if (e.keyCode === 8) {
+	if (e.key == 'Backspace') {
 		deleteChar(); 
 		return;
 	}
 
 	// handle enter
-	if (e.keyCode === 13) {
+	if (e.key == 'Enter') {
 		handleEnter();
+		return;
 	}
 	
 
 	var char; 
 	// handle fucked up punctuation 
 	
-	if (e.keyCode === 186) 
+	if (e.key == ';') 
 		char = ';';
-	else if (e.keyCode === 187)
+	else if (e.key == '+')
 		char = '+';
-	else if (e.keyCode === 188) 
+	else if (e.key == ',') 
 		char = ',';
-	else if (e.keyCode === 189) 
+	else if (e.key == '-') 
 		char = '-';
-	else if (e.keyCode === 190) 
+	else if (e.key == '.') 
 		char = '.';
-	else if (e.keyCode === 191) 
+	else if (e.key == '/') 
 		char = '/';
-	else if (e.keyCode === 192) 
+	else if (e.key == '`') 
 		char = '`';
-	else if (e.keyCode === 219) 
+	else if (e.key == '[') 
 		char = '[';
-	else if (e.keyCode === 220) 
+	else if (e.key == '\\') 
 		char = '\\';
-	else if (e.keyCode === 221) 
+	else if (e.key == ']') 
 		char = ']';
-	else if (e.keyCode === 222) 
-		char = '\'';
+	else if (e.key == '\'') 
+		char = '\''; 
 
 	// regular alpha-numerics
-	else {
-		char = String.fromCharCode(e.keyCode); 
+	else if (e.key.length < 2 && e.key.match(/[A-Za-z0-9 _.,!"'/$]*/)) {
+		char = e.key; 
+	} else {
+		return;
 	}
+
 	
-	// console.log('keycode: ', e.keyCode);
+	// console.log('key: ', e.key);
 	if (curLineCharCount >= MAX_CHARS) {
 		curLine.textContent += '\n'; 
 		curLineCharCount = 0;
@@ -354,7 +367,6 @@ function runRoofer() {
 
 
 }
-
 
 // Utilities
 function deleteChar() {
