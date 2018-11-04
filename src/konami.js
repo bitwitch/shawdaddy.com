@@ -2,8 +2,8 @@ var konamiIndex = 0;
 var kabuki = new Audio('../assets/kabuki.mp3');
 var konamiCode = [
 	'ArrowUp', 
-	'ArrowDown',
 	'ArrowUp', 
+	'ArrowDown',
 	'ArrowDown',
 	'ArrowLeft',
 	'ArrowRight',
