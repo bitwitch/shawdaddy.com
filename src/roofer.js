@@ -1,6 +1,6 @@
 //TODO(shaw): bug at bridge section. if you jump from bridge to right building and land half on the right building, 
 // you fall through, ground collision is not detected. this is the only place this seems to occur
-var roofer = (function() {
+var createRoofer = function() {
 
   var canvas = document.getElementById('stage'); 
   var ctx = canvas.getContext('2d');
@@ -8,9 +8,9 @@ var roofer = (function() {
 
   var blueBuildings = new Image(); 
   blueBuildings.src = "../assets/buildings.png";
-  blueBuildings.onload = function () {
-    // console.log('image loaded');
-  }
+  //blueBuildings.onload = function () {
+    //console.log('image loaded');
+  //}
 
   var gameState = {
     entities: [], 
@@ -439,4 +439,4 @@ var roofer = (function() {
 
   return roofer;
 
-}());
+};

@@ -1,53 +1,48 @@
-document.addEventListener('DOMContentLoaded', function(){ 
+document.addEventListener('DOMContentLoaded', function() { 
 
-// commands dispatch
 var commands = {
 	"help" : cmdHelp,
 	"cd"   : cmdCd,
 	"ls"   : cmdLs,
 	"cat"  : cmdCat,
-	"pwd"  : cmdPwd,	
+	"pwd"  : cmdPwd,
 	"run"  : cmdRun,
 	"cls"  : cmdCls,
 	"mkdir": cmdMkdir,
 	"touch": cmdTouch
 };
 
-// TODO(shaw): KONAMI code
-// add an event listener
-// have the code saved as array, and have a pointer to current position in the code
-
-
 // constants
 var OFFSET_FROM_TOP_OF_MONITOR = 724,
 	MAX_CHARS = 80;
 
-// globals
+// globals ('file' scoped)
 var compScreen, 
 	overlay,
-	curLineNum,
 	curLine,
+	curLineNum,
 	curLineCharCount,
 	visibleCount,
 	root,
 	workingDirectory,
-	prompt;
+	prompt,
+    roofer,
+    invaders;
 	
-
 // entry point
 init(); 
 
-
 // functions
 function init () {
-	document.addEventListener('keydown', handleInput);
 	compScreen = document.getElementById('screen');
 	overlay = document.getElementById('overlay');
 	curLine = document.getElementById('line1');
 	curLineNum = 1; 
-	visibleCount = 1;
 	curLineCharCount = 0; 
+	visibleCount = 1;
 	prompt = ">>$ ";
+
+	document.addEventListener('keydown', handleInput);
 
 	// init directories and files 
 	initFilesystem();
@@ -59,24 +54,35 @@ function initFilesystem() {
 	var p    = Directory("projects"); 
 	var c    = Directory("classified"); 
 	var g    = Directory("games");
+	var d    = Directory("demos");
 	g.parent = home; 
 	p.parent = home;
+    d.parent = home;
 	c.parent = p;
 	p.children.push(c);
-	home.children.push(p,g); 
+	home.children.push(p,g,d); 
 
-	var roofer = Executable("roofer");
-	roofer.parent = g;
-	g.children.push(roofer);
+    // games
+    var gamesList = ["roofer", "invaders"];
+    for (var i=0; i<gamesList.length; i++) {
+        var exe = Executable(gamesList[i]);
+        exe.parent = g;
+        g.children.push(exe);
+    }
+    roofer = createRoofer();
+    invaders = createInvaders();
 
+    // demos
+
+    // projects
+
+    // other files
 	var f = File("readme.txt"); 
 	f.contents = "Welcome to the SD6969DX. Let's hack.";
 	f.parent = home;
 	home.children.push(f);
 	
-	
 	root = home;
-	
 	workingDirectory = home;
 }
 
@@ -94,8 +100,6 @@ function handleEnter() {
 		createNewline();
 		return;
 	}
-
-	console.log("COMMAND: ", cmd); 
 
 	// check for a recognized command
 	if (commands[cmd]) {
@@ -125,10 +129,9 @@ function handleInput(e) {
 		return;
 	}
 	
-
 	var char; 
+
 	// handle fucked up punctuation 
-	
 	if (e.key == ';') 
 		char = ';';
 	else if (e.key == '+')
@@ -159,7 +162,6 @@ function handleInput(e) {
 		return;
 	}
 
-	
 	// console.log('key: ', e.key);
 	if (curLineCharCount >= MAX_CHARS) {
 		curLine.textContent += '\n'; 
@@ -333,9 +335,13 @@ function cmdRun(args) {
 }
 
 function run(exe) {
+    console.log(exe);
 	switch(exe) {
 		case "roofer": 
 			runRoofer(); 
+			break;
+		case "invaders": 
+			runInvaders(); 
 			break;
 		default:
 			cPrint("Executable not found");
@@ -346,17 +352,15 @@ function run(exe) {
 function runRoofer() {
 	overlay.style.display = 'block';
 
-	// pause listening for events on the terminal 
+	// stop listening for events on the terminal 
 	document.removeEventListener('keydown', handleInput); 
-
 
 	roofer.init();
 	roofer.startGame();
 	// roofer.playMusic();
 
 	document.addEventListener('keypress', function exitOnPressEscape(e) {
-		console.log("code: ", e.code); 
-		if (e.code === "KeyQ") {
+		if (e.key == "q") {
 			roofer.quit = true; 
 			// roofer.pauseMusic(); 
 			document.addEventListener('keydown', handleInput);
@@ -364,8 +368,26 @@ function runRoofer() {
 			document.removeEventListener('keypress', exitOnPressEscape); 
 		}
 	}); 
+}
 
+function runInvaders() {
+	overlay.style.backgroundColor = '#000';
+	overlay.style.display = 'block';
 
+	// stop listening for events on the terminal 
+	document.removeEventListener('keydown', handleInput); 
+
+    invaders.run();
+
+	document.addEventListener('keypress', function exitOnPressEscape(e) {
+		if (e.key == "q") {
+			invaders.quit();
+			document.addEventListener('keydown', handleInput);
+			overlay.style.display = 'none'; 
+            overlay.style.backgroundColor = '';
+			document.removeEventListener('keypress', exitOnPressEscape); 
+		}
+	}); 
 }
 
 // Utilities
@@ -373,7 +395,9 @@ function deleteChar() {
 	var text = curLine.textContent;
 	curLine.textContent = text.slice(0, text.length - 1); 
 	// TODO(shaw): take a closer look at text wrapping 
-	curLineCharCount =  (text[text.length-1] === '\n') ? MAX_CHARS : curLineCharCount - 1; 
+	curLineCharCount = (text[text.length-1] === '\n') 
+        ? MAX_CHARS 
+        : curLineCharCount - 1; 
 }
 
 function createNewline() {
