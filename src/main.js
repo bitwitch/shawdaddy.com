@@ -162,7 +162,6 @@ function handleInput(e) {
 		return;
 	}
 
-	// console.log('key: ', e.key);
 	if (curLineCharCount >= MAX_CHARS) {
 		curLine.textContent += '\n'; 
 		curLineCharCount = 0;
@@ -224,8 +223,6 @@ function cmdCat(args) {
 	
 	// parse filename from the path
 	var filename = path; 
-
-	console.log("searching for: ", filename);
 	
 	// traverse the filesystem, for each leaf, check if it matches the arg, print its contents if it does
 	var queue = [root]; 
@@ -233,11 +230,9 @@ function cmdCat(args) {
 		var current = queue.shift();
 
 		if (!current.children || current.children.length == 0) { // if leaf
-			console.log("leaf found: ", current.name);
 			
 			// do check
 			if (current.name.toLowerCase() == filename.toLowerCase()) {
-				console.log('file found: ', filename); 
 				cPrint(current.contents); 
 			}
 
@@ -335,7 +330,6 @@ function cmdRun(args) {
 }
 
 function run(exe) {
-    console.log(exe);
 	switch(exe) {
 		case "roofer": 
 			runRoofer(); 

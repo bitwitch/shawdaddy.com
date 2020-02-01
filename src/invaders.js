@@ -1,6 +1,9 @@
 var createInvaders = function() {
-    var WINDOW_HEIGHT = 800;
-    var WINDOW_WIDTH = WINDOW_HEIGHT * 3 / 4;
+    //var WINDOW_HEIGHT = 800;
+    //var WINDOW_WIDTH = WINDOW_HEIGHT * 3 / 4;
+    var WINDOW_HEIGHT = 650;
+    var WINDOW_WIDTH = 850;
+
     var canvas;
 
     var shake = 0;
@@ -125,9 +128,6 @@ var createInvaders = function() {
 
     // "external" API to run game
     Game.prototype.run = function() {
-        WINDOW_HEIGHT = 650;
-        WINDOW_WIDTH = WINDOW_HEIGHT * 3 / 4;
-
         canvas = document.getElementById('stage');
         canvas.width = WINDOW_WIDTH;
         canvas.height = WINDOW_HEIGHT;
@@ -749,9 +749,10 @@ var createInvaders = function() {
         // draw "GAME OVER, press r to restart"
             ctx.fillStyle = "#3E3E3E";
             ctx.font = "40px Arial";
-            ctx.fillText("GAME OVER", WINDOW_WIDTH*0.4, WINDOW_HEIGHT*0.4);
+            ctx.fillText("GAME OVER", WINDOW_WIDTH*0.35, WINDOW_HEIGHT*0.4);
             ctx.font = "24px Arial";
-            ctx.fillText("press 'r' to restart", WINDOW_WIDTH*0.43, WINDOW_HEIGHT*0.4 + 100);
+            ctx.fillText("press 'r' to restart", WINDOW_WIDTH*0.39, WINDOW_HEIGHT*0.4 + 100);
+            ctx.fillText("press 'q' to quit", WINDOW_WIDTH*0.4, WINDOW_HEIGHT*0.4 + 150);
         }
 
         // default weapon bullets
@@ -874,7 +875,7 @@ var createInvaders = function() {
         // Bullet update
         if (this.upgrades.weapon != null) {
             // NOTE: weapon update also handles enemy collisions
-            console.log('weapon: ', this.upgrades.weapon);
+            //console.log('weapon: ', this.upgrades.weapon);
             this.upgrades.weapon.update(dt, enemies);
 
         } else {
@@ -1273,7 +1274,6 @@ var createInvaders = function() {
         // Animate particle system
         if (this.particleSystem) {
             this.particleSystem.run(dt, ctx);
-            console.log(this.particleSystem);
 
             if (this.particleSystem.particles.length == 0) {
                 this.particleSystem = null;
