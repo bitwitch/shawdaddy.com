@@ -57,9 +57,9 @@ function init () {
 function initFilesystem() {
 	var home = Directory("/home");
 	var p    = Directory("projects"); 
-	var c    = Directory("classified"); 
+	var c    = Directory("classified");
 	var g    = Directory("games");
-	g.parent = home; 
+	g.parent = home;
 	p.parent = home;
 	c.parent = p;
 	p.children.push(c);
@@ -69,11 +69,10 @@ function initFilesystem() {
 	roofer.parent = g;
 	g.children.push(roofer);
 
-	var f = File("readme.txt"); 
+	var f = File("readme.txt");
 	f.contents = "Welcome to the SD6969DX. Let's hack.";
 	f.parent = home;
 	home.children.push(f);
-	
 	
 	root = home;
 	
