@@ -27,7 +27,8 @@ var compScreen,
 	workingDirectory,
 	prompt,
     roofer,
-    invaders;
+    invaders,
+    tunnel;
 	
 // entry point
 init(); 
@@ -73,6 +74,13 @@ function initFilesystem() {
     invaders = createInvaders();
 
     // demos
+    var demoList = ["tunnel"]
+    for (var i=0; i<demoList.length; i++) {
+        var exe = Executable(demoList[i]);
+        exe.parent = d;
+        d.children.push(exe);
+    }
+    tunnel = createTunnel();
 
     // projects
 
@@ -337,6 +345,9 @@ function run(exe) {
 		case "invaders": 
 			runInvaders(); 
 			break;
+		case "tunnel": 
+			runDemo(exe); 
+            break;
 		default:
 			cPrint("Executable not found");
 			break;
@@ -379,6 +390,26 @@ function runInvaders() {
 			document.addEventListener('keydown', handleInput);
 			overlay.style.display = 'none'; 
             overlay.style.backgroundColor = '';
+			document.removeEventListener('keypress', exitOnPressEscape); 
+		}
+	}); 
+}
+
+function runDemo(name) {
+	overlay.style.display = 'block';
+
+	// stop listening for events on the terminal 
+	document.removeEventListener('keydown', handleInput); 
+
+    if (name == "tunnel")
+        console.log(tunnel);
+        tunnel.run();
+
+	document.addEventListener('keypress', function exitOnPressEscape(e) {
+		if (e.key == "q") {
+			tunnel.quit();
+			document.addEventListener('keydown', handleInput);
+			overlay.style.display = 'none'; 
 			document.removeEventListener('keypress', exitOnPressEscape); 
 		}
 	}); 

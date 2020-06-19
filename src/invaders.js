@@ -1,4 +1,4 @@
-var createInvaders = function() {
+function createInvaders() {
     //var WINDOW_HEIGHT = 800;
     //var WINDOW_WIDTH = WINDOW_HEIGHT * 3 / 4;
     var WINDOW_HEIGHT = 650;
