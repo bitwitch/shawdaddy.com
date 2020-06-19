@@ -54,7 +54,7 @@ function createTunnel() {
         }
 
         // run demo
-        console.log('running demo');
+        this.running = true;
         this.loop(ctx);
     }
 
