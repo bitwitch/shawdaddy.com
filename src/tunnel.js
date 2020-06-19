@@ -36,18 +36,18 @@ function createTunnel() {
         }
 
         // generate lookup tables
-        for (var y=0; y < WINDOW_HEIGHT; y++) {
+        for (var y=0; y < WINDOW_HEIGHT * 2; y++) {
             this.distTable[y] = [];
             this.angleTable[y] = [];
-            for (var x=0; x < WINDOW_WIDTH; x++) {
+            for (var x=0; x < WINDOW_WIDTH * 2; x++) {
                 var ratio = 32.0;
 
-                var pixelDist = Math.sqrt((x - WINDOW_WIDTH / 2.0) * (x - WINDOW_WIDTH / 2.0) + (y - WINDOW_HEIGHT / 2.0) * (y - WINDOW_HEIGHT / 2.0));
+                var pixelDist = Math.sqrt((x - WINDOW_WIDTH) * (x - WINDOW_WIDTH) + (y - WINDOW_HEIGHT) * (y - WINDOW_HEIGHT));
                 var distance = 0;
                 if (pixelDist != 0) {
                     distance = Math.floor(ratio * this.texHeight / pixelDist) % this.texHeight;
                 }
-                var angle = 0.5 * this.texWidth * Math.atan2(y - WINDOW_HEIGHT / 2.0, x - WINDOW_WIDTH / 2.0) / 3.1416;
+                var angle = 0.5 * this.texWidth * Math.atan2(y - WINDOW_HEIGHT, x - WINDOW_WIDTH) / 3.1416;
                 this.distTable[y][x] = distance;
                 this.angleTable[y][x] = angle;
             }
@@ -78,12 +78,14 @@ function createTunnel() {
 
         var shiftX = Math.floor(this.texWidth * 1.0 * time);
         var shiftY = Math.floor(this.texHeight * 0.25 * time);
+        var lookX  = Math.floor(WINDOW_WIDTH / 2) + Math.floor(WINDOW_WIDTH / 2 * Math.sin(time * 0.5)); 
+        var lookY  = Math.floor(WINDOW_HEIGHT / 2) + Math.floor(WINDOW_HEIGHT / 2 * Math.sin(time)); 
 
         var i;
         for (var y=0; y < WINDOW_HEIGHT; y++)
         for (var x=0; x < WINDOW_WIDTH; x++) {
-            var texY = Math.floor(this.distTable[y][x] + shiftX) % this.texWidth;
-            var texX = Math.floor(this.angleTable[y][x] + shiftY) % this.texHeight;
+            var texY = Math.floor(this.distTable[y + lookY][x + lookX] + shiftX) % this.texHeight;
+            var texX = Math.floor(this.angleTable[y + lookY][x + lookX] + shiftY) % this.texWidth;
             var color = this.texture[texY][texX];
 
             i = WINDOW_WIDTH * y * 4 + (x * 4); 
