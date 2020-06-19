@@ -89,9 +89,9 @@ function createTunnel() {
             var color = this.texture[texY][texX];
 
             i = WINDOW_WIDTH * y * 4 + (x * 4); 
-            this.imageData.data[i + 0] = 0;  // R value
-            this.imageData.data[i + 1] = 0;    // G value
-            this.imageData.data[i + 2] = color;  // B value
+            this.imageData.data[i + 0] = color % 70;  // R value
+            this.imageData.data[i + 1] = color % 15;    // G value
+            this.imageData.data[i + 2] = color % 178;  // B value
             this.imageData.data[i + 3] = 255;  // A value
         }
     }

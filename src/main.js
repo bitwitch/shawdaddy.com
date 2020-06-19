@@ -402,7 +402,6 @@ function runDemo(name) {
 	document.removeEventListener('keydown', handleInput); 
 
     if (name == "tunnel")
-        console.log(tunnel);
         tunnel.run();
 
 	document.addEventListener('keypress', function exitOnPressEscape(e) {
