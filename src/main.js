@@ -26,9 +26,10 @@ var compScreen,
 	root,
 	workingDirectory,
 	prompt,
-    roofer,
-    invaders,
-    tunnel;
+  roofer,
+  invaders,
+  tunnel,
+  plasma;
 	
 // entry point
 init(); 
@@ -74,13 +75,14 @@ function initFilesystem() {
     invaders = createInvaders();
 
     // demos
-    var demoList = ["tunnel"]
+    var demoList = ["tunnel", "plasma"]
     for (var i=0; i<demoList.length; i++) {
         var exe = Executable(demoList[i]);
         exe.parent = d;
         d.children.push(exe);
     }
     tunnel = createTunnel();
+    plasma = createPlasma();
 
     // projects
 
@@ -346,6 +348,7 @@ function run(exe) {
 			runInvaders(); 
 			break;
 		case "tunnel": 
+		case "plasma": 
 			runDemo(exe); 
             break;
 		default:
@@ -401,12 +404,15 @@ function runDemo(name) {
 	// stop listening for events on the terminal 
 	document.removeEventListener('keydown', handleInput); 
 
-    if (name == "tunnel")
-        tunnel.run();
+  if (name == "tunnel")
+    tunnel.run();
+  else if (name == "plasma")
+    plasma.run();
 
 	document.addEventListener('keypress', function exitOnPressEscape(e) {
 		if (e.key == "q") {
 			tunnel.quit();
+			plasma.quit();
 			document.addEventListener('keydown', handleInput);
 			overlay.style.display = 'none'; 
 			document.removeEventListener('keypress', exitOnPressEscape); 
