@@ -411,8 +411,10 @@ function runDemo(name) {
 
 	document.addEventListener('keypress', function exitOnPressEscape(e) {
 		if (e.key == "q") {
-			tunnel.quit();
-			plasma.quit();
+      if (name == "tunnel")
+        tunnel.quit();
+      else if (name == "plasma")
+        plasma.quit();
 			document.addEventListener('keydown', handleInput);
 			overlay.style.display = 'none'; 
 			document.removeEventListener('keypress', exitOnPressEscape); 
