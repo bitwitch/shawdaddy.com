@@ -52,47 +52,54 @@ function init () {
 
 // TODO(shaw): cleanup
 function initFilesystem() {
-	var home = Directory("/home");
-	var p    = Directory("projects"); 
-	var c    = Directory("classified");
-	var g    = Directory("games");
-	var d    = Directory("demos");
-	g.parent = home; 
-	p.parent = home;
-    d.parent = home;
-	c.parent = p;
-	p.children.push(c);
-	home.children.push(p,g,d); 
+  var slash = Directory("/");
+  //var home = Directory("/home");
+  var home = Directory("home");
+  var p    = Directory("projects"); 
+  var c    = Directory("classified");
+  var g    = Directory("games");
+  var d    = Directory("demos");
 
-    // games
-    var gamesList = ["roofer", "invaders"];
-    for (var i=0; i<gamesList.length; i++) {
-        var exe = Executable(gamesList[i]);
-        exe.parent = g;
-        g.children.push(exe);
-    }
-    roofer = createRoofer();
-    invaders = createInvaders();
+  home.parent = slash;
 
-    // demos
-    var demoList = ["tunnel", "plasma"]
-    for (var i=0; i<demoList.length; i++) {
-        var exe = Executable(demoList[i]);
-        exe.parent = d;
-        d.children.push(exe);
-    }
-    tunnel = createTunnel();
-    plasma = createPlasma();
+  g.parent = home; 
+  p.parent = home;
+  d.parent = home;
+  c.parent = p;
 
-    // projects
+  slash.children.push(home);
+  home.children.push(p,g,d);
+  p.children.push(c);
 
-    // other files
+  // games
+  var gamesList = ["roofer", "invaders"];
+  for (var i=0; i<gamesList.length; i++) {
+    var exe = Executable(gamesList[i]);
+    exe.parent = g;
+    g.children.push(exe);
+  }
+  roofer = createRoofer();
+  invaders = createInvaders();
+
+  // demos
+  var demoList = ["tunnel", "plasma"]
+  for (var i=0; i<demoList.length; i++) {
+      var exe = Executable(demoList[i]);
+      exe.parent = d;
+      d.children.push(exe);
+  }
+  tunnel = createTunnel();
+  plasma = createPlasma();
+
+  // projects
+
+  // other files
 	var f = File("readme.txt"); 
 	f.contents = "Welcome to the SD6969DX. Let's hack.";
 	f.parent = home;
 	home.children.push(f);
 	
-	root = home;
+	root = slash;
 	workingDirectory = home;
 }
 
@@ -189,8 +196,10 @@ pwd           print the current working directory
 cat <file>    copies each FILE (or standard input) to standard output
 run <file>    execute FILE
 cls           clear screen
+
+press 'q' to quit a running program
 `
-	); 
+  ); 
 }
 
 // TODO(shaw): handle ls with directory as argument
@@ -294,24 +303,47 @@ function cmdCd(args) {
 		return;
 	}
 
-	for (var i=0; i<workingDirectory.children.length; i++) { 
-		var current = workingDirectory.children[i];
+  // absolute path
+  if (dir[0] == "/") {
+    var path = dir.split("/");
+    var targetDirectory = root;
 
-		if (current.name === dir) {
+    // start at 1 as first element is ""
+    for (var i=1; i<path.length; i++) {
 
-			if (current.type !== "directory") {
-				var message = current.name + " is a " + current.type + " not a directory";
-				cPrint(message);
-				return
-			}
+      // check target dir for child dir with name path[i]
+      targetDirectory = findChildDir(targetDirectory, path[i]);
 
-			workingDirectory = current; 
-			return;
-		}
-	}
+      if (!targetDirectory) {
+        cPrint("No such file or directory: ", path[i]);
+        return;
+      }
 
-	// if directory or file not found
-	cPrint("No such file or directory");
+      if (targetDirectory.type !== "directory") {
+        var message = targetDirectory.name + " is a " + targetDirectory.type + " not a directory";
+        cPrint(message);
+        return;
+      }
+    }
+    workingDirectory = targetDirectory;
+    return;
+  }
+
+  // local path: check in current working directory
+  foundDirectory = findChildDir(workingDirectory, dir);
+  if (!foundDirectory) {
+    cPrint("No such file or directory");
+    return;
+  }
+
+  if (foundDirectory.type !== "directory") {
+    var message = foundDirectory.name + " is a " + foundDirectory.type + " not a directory";
+    cPrint(message);
+    return;
+  }
+
+  workingDirectory = foundDirectory; 
+
 }
 
 function cmdMkdir(args) {
@@ -440,7 +472,7 @@ function createNewline() {
 	curLine.className = 'line'; 
 	compScreen.appendChild(newLine);
 	curLine = newLine;
-
+  curLineCharCount = prompt.length;
 
 	// TODO(shaw): this is placeholder screen overflow, fix this shit later
 	if (curLine.offsetTop >= OFFSET_FROM_TOP_OF_MONITOR) {
@@ -461,6 +493,17 @@ function cPrint(message) {
 	createNewline(); 
 }
 
+// returns the directory with the name dirNameToFind if it exists in dir
+// returns null if not found
+function findChildDir(dir, childDirName) {
+	for (var i=0; i<dir.children.length; i++) { 
+		var current = dir.children[i];
+		if (current.name === childDirName) {
+			return current;
+		}
+	}
+  return null;
+}
 
 
 }, false);
