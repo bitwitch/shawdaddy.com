@@ -31,8 +31,15 @@ function lerp_color(color_a, color_b, amt) {
 
 function lerp(a, b, amt) {
   var result = (1-amt) * a + amt * b;
-  if (result < a) result = a;
-  if (result > b) result = b;
+
+  if (b < a) {
+    if (result < b) result = b;
+    if (result > a) result = a;
+  } else {
+    if (result < a) result = a;
+    if (result > b) result = b;
+  }
+
   return result;
 }
 

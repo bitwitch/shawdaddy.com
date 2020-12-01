@@ -1,7 +1,7 @@
 // globals
 var canvas, ctx, canvas_width, canvas_height, prev_frame, running, 
-    player, chest, key, monster, do_fireworks, psystems, input, clear_info,
-    game_start, start_button, initiated_start;
+    player, chest, key, monster, do_fireworks, psystems, blood_psystems, input, 
+    clear_info, game_start, start_button, initiated_start;
 
 function init() {
   canvas = document.getElementById('canvas');
@@ -14,7 +14,7 @@ function init() {
   initiated_start = false;
   start_button = {
     x: 0.5 * canvas_width - 90, 
-    y: 300,
+    y: 310,
     w: 180, h: 50,
     text: 'Begin',
     color: '#DB4040',
@@ -26,6 +26,7 @@ function init() {
   running = true;
   do_fireworks = false;
   psystems = [];
+  blood_psystems = []
 
   clear_info = {
     color: '#ADA599',
@@ -74,11 +75,12 @@ function start_screen() {
   // draw instructions
   var center_x = 0.5 * canvas_width;
   var center_y = 0.5 * canvas_height;
-  var y_off = 120;
-  ctx.fillText('Controls', center_x - 50, y_off);
-  ctx.fillText('arrow keys - move', center_x - 100, y_off + 50 + 3);
-  ctx.fillText('x - attack', center_x - 100, y_off + 75 + 6);
-  ctx.fillText('escape - restart', center_x - 100, y_off + 100 + 9);
+  var y_off = 100;
+  ctx.fillText('Hey babe. I made this for you.', center_x - 155, y_off);
+  ctx.fillText('Controls', center_x - 50, y_off + 65);
+  ctx.fillText('arrow keys - move', center_x - 100, y_off + 100 + 3);
+  ctx.fillText('x - attack', center_x - 100, y_off + 125 + 6);
+  ctx.fillText('escape - restart', center_x - 100, y_off + 150 + 9);
 
   if (input.enter) initiated_start = true;
 
@@ -116,24 +118,39 @@ function run() {
     fireworks(dt);
   }
 
-  // update key
-  if (key && key.active) {
-    key.update(dt);
-  }
-
   // draw chest
   if (chest.did_hit)
     ctx.drawImage(img_chest, 64, 0, 64, 64, chest.x, chest.y, chest.w, chest.h);
   else
     ctx.drawImage(img_chest, 0, 0, 64, 64, chest.x, chest.y, chest.w, chest.h);
 
+  // update monster
   monster.update(dt);
 
+  // update key
+  if (key && key.active) {
+    key.update(dt);
+  }
+
+  // update player
   player.update(dt);
 
   if (player.hp <= 0) {
     draw_death_screen();
   }
+
+
+  // update blood particle systems
+  for (var i=0; i<blood_psystems.length; i++) {
+    var psystem = blood_psystems[i];
+    psystem.run(dt, ctx);
+    // if system contains no particles, remove particle system
+    if (psystem.particles.length == 0) {
+      psystems.splice(i, 1);
+    }
+  }
+
+
 }
 
 function fireworks(dt) {
@@ -144,6 +161,7 @@ function fireworks(dt) {
       canvas_height));                 // y-pos
   }
 
+  // update particle systems
   for (var i=0; i<psystems.length; i++) {
     var psystem = psystems[i];
     psystem.run(dt, ctx);

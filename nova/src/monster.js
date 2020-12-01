@@ -17,11 +17,14 @@ function Monster() {
   this.anim_delay = 16*8;
   this.frame_offset = 0;
   this.alive_last_frame = true;
+  this.knockback_speed = 1.0;
 }
 
 Monster.prototype.update = function(dt) {
-  this.vx = 0;
-  this.vy = 0;
+  //this.vx = 0;
+  //this.vy = 0;
+  this.vx *= Math.abs(this.vx) > 0.001 ? 0.8 : 0;
+  this.vy *= Math.abs(this.vy) > 0.001 ? 0.8 : 0;
 
   if (this.hp <= 0) { 
     this.state = 'dead';
@@ -37,8 +40,15 @@ Monster.prototype.update = function(dt) {
     case 'idle': this.idle(dt); break;
     case 'hunt': this.hunt(dt); break;
     case 'attack': this.attack(dt); break;
-    case 'dead': break;
+    case 'dead': this.dead(dt); break;
   }
+
+  this.x += this.vx;
+  this.y += this.vy;
+
+  if (this.x < 0) this.x = 0;
+  else if (this.x + this.w > canvas_width) this.x = canvas_width - this.w;
+
 
   // calculate if can attack again
   if (this.attack_timer > 0) 
@@ -120,9 +130,6 @@ Monster.prototype.hunt = function(dt) {
     this.attack_timer = 400;
     this.state = 'attack'
   }
-
-  this.x += this.vx;
-  this.y += this.vy;
 }
 
 Monster.prototype.attack = function(dt) {
@@ -139,6 +146,15 @@ Monster.prototype.attack = function(dt) {
 
     if(collide(hitbox, player)) {
       player.hp -= 1;
+      blood_psystems.push(new ParticleSystem(
+        6,                    // red for blood
+        player.x + 0.5 * player.w, 
+        player.y + 0.5 * player.h, // position
+        2,                    // blood particle system
+        player               // blood target
+      ));
+
+      player.vx = this.dir * player.knockback_speed * dt;
     }
   }
 
@@ -146,6 +162,20 @@ Monster.prototype.attack = function(dt) {
      (player.x + player.w + 25 < this.x || player.x - 25 > this.x + this.w))
   {
     this.state = 'hunt';
+  }
+
+}
+Monster.prototype.dead = function(dt) {
+  var target_x = this.x + this.vx;
+  var target_y = this.y + this.vy;
+
+  // dead guy bouncing off walls :)
+  if (target_x < 0) {
+    this.x = 0;
+    this.vx *= -1;
+  } else if (target_x + this.w > canvas_width) {
+    this.x = canvas_width - this.w;
+    this.vx *= -1;
   }
 
 }

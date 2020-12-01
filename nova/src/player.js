@@ -8,6 +8,7 @@ function Player() {
   this.vx = 0;
   this.vy = 0;
   this.walk_speed = .248;
+  this.knockback_speed = 0.92;
   this.dir = 1; // 1 == right, -1 == left
   this.can_attack = true;
   this.attack_timer = 0;
@@ -22,8 +23,9 @@ Player.prototype.update = function(dt) {
     return;
   }
 
-  this.vx = 0;
-  this.vy = 0;
+  this.vx *= Math.abs(this.vx) > 0.001 ? 0.8 : 0;
+  this.vy *= Math.abs(this.vy) > 0.001 ? 0.8 : 0;
+
   if (input.left && !input.right) {
     this.dir = -1;
     this.vx = -this.walk_speed * dt;
@@ -51,6 +53,14 @@ Player.prototype.update = function(dt) {
 
     if(collide(hitbox, monster)) {
       monster.hp -= 1;
+      blood_psystems.push(new ParticleSystem(
+        6,                    // red for blood
+        monster.x + 0.5 * monster.w, 
+        monster.y + 0.5 * monster.h, // position
+        2,                    // blood particle system
+        monster               // blood target
+      ));
+      monster.vx = this.dir * monster.knockback_speed * dt;
     }
   }
 

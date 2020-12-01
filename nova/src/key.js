@@ -11,6 +11,11 @@ function Key(sx, sy, dx, dy) {
   this.lerp_amt = 0;
   this.active = false;
   this.state = 'landing'
+
+
+  // keep key spawning on left half of screen
+  if (this.end_x < 0) this.end_x = 0;
+  if (this.end_x > 0.5 * canvas_width) this.end_x = 0.5 * canvas_width;
 }
 
 Key.prototype.update = function(dt) {
