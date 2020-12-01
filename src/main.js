@@ -280,8 +280,6 @@ function cmdCls(args) {
 	curLine.style.paddingTop = '15px';
 }
 
-
-// TODO(shaw): handle the case of a path instead of a single directory
 function cmdCd(args) {
 
 	if (args.length > 1) {
