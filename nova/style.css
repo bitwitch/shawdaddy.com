@@ -1,0 +1,22 @@
+body {
+  height: 100vh;
+  overflow: hidden;
+  background-color: #22252A;
+}
+
+.wrap-outer {
+  position: relative;
+  width: 100%;
+}
+
+.wrap-inner {
+  width: 100%;
+  max-width: 1200px;
+  min-width: 640px;
+  margin: auto;
+}
+
+#canvas {
+  width: 100%;
+}
+
