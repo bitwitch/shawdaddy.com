@@ -2,6 +2,8 @@ body {
   height: 100vh;
   overflow: hidden;
   background-color: #22252A;
+  margin: 8px !important;
+  padding: 0 !important;
 }
 
 .wrap-outer {

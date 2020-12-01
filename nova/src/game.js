@@ -1,15 +1,27 @@
 // globals
 var canvas, ctx, canvas_width, canvas_height, prev_frame, running, 
     player, chest, key, monster, do_fireworks, psystems, input, clear_info,
-    game_start;
+    game_start, start_button, initiated_start;
 
 function init() {
-  game_start = false;
   canvas = document.getElementById('canvas');
-  // TODO(shaw): update to make responsive
   canvas_width = canvas.width;
   canvas_height = canvas.height;
   ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+
+  game_start = false;
+  initiated_start = false;
+  start_button = {
+    x: 0.5 * canvas_width - 90, 
+    y: 300,
+    w: 180, h: 50,
+    text: 'Begin',
+    color: '#DB4040',
+    hover_color: '#C23046',
+    current_color: '#DB4040',
+  };
+
   prev_frame = Date.now();
   running = true;
   do_fireworks = false;
@@ -29,9 +41,8 @@ function init() {
   input = {
     left: 0,
     right: 0,
-    space: 0,
     attack: 0,
-    action: 0
+    enter: 0
   }
 
   chest = {
@@ -48,16 +59,35 @@ function init() {
 
   document.addEventListener('keydown', handle_keydown);
   document.addEventListener('keyup', handle_keyup);
+  canvas.addEventListener('click', handle_click_to_start);
+  canvas.addEventListener('mousemove', handle_mouse_move);
 }
 
-//function start_screen() {
-  //ctx.font = '25px Helvetica';
-  //ctx.fillStyle = '#000000';
-  //ctx.fillText('Press any key to begin', 50, 90);
-  //ctx.fillText('arrow keys - move', 50, 90 + 50);
-  //ctx.fillText('x - attack', 50, 90 + 75);
-  //ctx.fillText('escape - restart', 50, 90 + 100);
-//}
+function start_screen() {
+  // draw button
+  ctx.fillStyle = start_button.current_color;
+  ctx.fillRect(start_button.x, start_button.y, start_button.w, start_button.h);
+  ctx.font = '25px Helvetica';
+  ctx.fillStyle = '#000000';
+  ctx.fillText(start_button.text, start_button.x + 55, start_button.y + 34);
+
+  // draw instructions
+  var center_x = 0.5 * canvas_width;
+  var center_y = 0.5 * canvas_height;
+  var y_off = 120;
+  ctx.fillText('Controls', center_x - 50, y_off);
+  ctx.fillText('arrow keys - move', center_x - 100, y_off + 50 + 3);
+  ctx.fillText('x - attack', center_x - 100, y_off + 75 + 6);
+  ctx.fillText('escape - restart', center_x - 100, y_off + 100 + 9);
+
+  if (input.enter) initiated_start = true;
+
+  if (initiated_start) {
+    game_start = true;
+    canvas.removeEventListener('click', handle_click_to_start);
+    canvas.removeEventListener('mousemove', handle_mouse_move);
+  }
+}
 
 function run() {
   if (running) {
@@ -75,6 +105,11 @@ function run() {
   ctx.fillStyle = clear_info.color;
   ctx.fillRect(0, 0, canvas_width, canvas_height);
   ctx.beginPath();
+
+  if (!game_start) {
+    start_screen();
+    return;
+  }
 
   // update fireworks
   if (do_fireworks) {
@@ -96,6 +131,9 @@ function run() {
 
   player.update(dt);
 
+  if (player.hp <= 0) {
+    draw_death_screen();
+  }
 }
 
 function fireworks(dt) {
@@ -124,25 +162,47 @@ function fireworks(dt) {
 function handle_keydown(e) {
   if (e.key == "ArrowLeft")  input.left = 1;
   if (e.key == "ArrowRight") input.right = 1;
-  if (e.key == " ")          input.space = 1;
   if (e.key == "x")          input.attack = 1;
-  if (e.key == "z")          input.action = 1;
+  if (e.key == "Enter")      input.enter = 1;
 }
 
 function handle_keyup(e) {
   if (e.key == "ArrowLeft")  input.left = 0;
   if (e.key == "ArrowRight") input.right = 0;
-  if (e.key == " ")          input.space = 0;
   if (e.key == "x")          input.attack = 0;
-  if (e.key == "z")          input.action = 0;
+  if (e.key == "Enter")      input.enter = 0;
+
   if (e.key == "Escape")     init();
 }
 
-// min inclusive, max exclusive
-function rand_int(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min)) + min;
+function handle_click_to_start(e) {
+  var rect = canvas.getBoundingClientRect();
+  var scale_x = canvas.width / rect.width;
+  var scale_y = canvas.height / rect.height;
+  var x = (e.clientX - rect.x) * scale_x;
+  var y = (e.clientY - rect.y) * scale_y;
+
+  if (x >= start_button.x && x <= start_button.x + start_button.w &&
+      y >= start_button.y && y <= start_button.y + start_button.h)
+  {
+    initiated_start = true;
+  }
+}
+
+function handle_mouse_move(e) {
+  var rect = canvas.getBoundingClientRect();
+  var scale_x = canvas.width / rect.width;
+  var scale_y = canvas.height / rect.height;
+  var x = (e.clientX - rect.x) * scale_x;
+  var y = (e.clientY - rect.y) * scale_y;
+
+  if (x >= start_button.x && x <= start_button.x + start_button.w &&
+      y >= start_button.y && y <= start_button.y + start_button.h)
+  {
+    start_button.current_color = start_button.hover_color;
+  } else {
+    start_button.current_color = start_button.color;
+  }
 }
 
 function fade(dt) {
@@ -164,52 +224,12 @@ function fade(dt) {
   clear_info.color = `rgba(${color.r},${color.g},${color.b})`
 }
 
-function Key(sx, sy, dx, dy) {
-  this.start_x = sx;
-  this.start_y = sy;
-  this.end_x = dx;
-  this.end_y = dy;
-  this.x = sx;
-  this.y = sy;
-  this.w = 32;
-  this.h = 32;
-  this.lerp_speed = 0.001;
-  this.lerp_amt = 0;
-  this.active = false;
-  this.state = 'landing'
-}
-
-Key.prototype.update = function(dt) {
-  switch(this.state) {
-    case 'landing': this.landing(dt); break;
-    case 'idle': this.idle(dt); break;
-    case 'held': this.held(dt); break;
-    case 'used': this.active = false; break;
-  }
-
-  ctx.drawImage(img_key, 0, 0, this.w, this.h, this.x, this.y, this.w, this.h);
-}
-
-Key.prototype.landing = function (dt) {
-  this.lerp_amt += this.lerp_speed * dt;
-  this.x = lerp(this.start_x, this.end_x, this.lerp_amt);
-  this.y = lerp(this.start_y, this.end_y, this.lerp_amt);
-
-  if (this.lerp_amt >= 1) {
-    this.state = 'idle';
-  }
-}
-
-Key.prototype.held = function(dt) {
-  this.x = player.x + 10;
-  this.y = player.y - 25;
-  if (chest.did_hit) {
-    this.state = 'used';
-  }
-}
-
-Key.prototype.idle = function(dt) {
-  if (collide(this, player)) {
-    this.state = 'held'
-  }
+function draw_death_screen() {
+  var center_x = 0.5 * canvas_width;
+  var center_y = 0.5 * canvas_height;
+  var y_off = 200;
+  ctx.font = '25px Helvetica';
+  ctx.fillStyle = '#000000';
+  ctx.fillText('you died...', center_x - 50, y_off);
+  ctx.fillText('press escape to restart', center_x - 130, y_off + 50 + 3);
 }
