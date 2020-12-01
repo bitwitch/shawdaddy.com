@@ -146,7 +146,7 @@ function run() {
     psystem.run(dt, ctx);
     // if system contains no particles, remove particle system
     if (psystem.particles.length == 0) {
-      psystems.splice(i, 1);
+      blood_psystems.splice(i, 1);
     }
   }
 

@@ -48,7 +48,12 @@ ParticleSystem.prototype.run = function(dt, ctx) {
     p.pos.y += p.vel.y;
 
     // update lifespan
-    p.lifespan -= this.state == this.states.EXPLOSION ? 3 : 5;
+    if (this.state == this.states.EXPLOSION) 
+      p.lifespan -= 3;
+    else if (this.state == this.states.THRUSTER) 
+      p.lifespan -= 5;
+    else if (this.state == this.states.BLOOD) 
+      p.lifespan -= 9;
 
     if (p.lifespan < 0) {
       this.particles.splice(i, 1);
