@@ -19,9 +19,10 @@ var createRoofer = function() {
     foreground: [],
     started: false,
     gameOver: false,
+    prevFrame: 0
   }
 
-  var grav = 2;
+  var grav = 0.0072;
   var worldEnd = 11000; 
   var darkGreen = "#367f69";
 
@@ -36,8 +37,8 @@ var createRoofer = function() {
     y: 40,
     width: 50,
     height: 50,
-    speed: 10,
-    jumpSpeed: 30,
+    speed: 0.6,
+    jumpSpeed: 1.8,
     vely: 0
   }
 
@@ -135,10 +136,10 @@ var createRoofer = function() {
   }
 
   // Movement ---
-  function movePixel () {
+  function movePixel (dt) {
     // check for roof collision
     if (pixel.vely < 0) {
-      var roofCollisionBlock = detectRoofCollision(pixel);
+      var roofCollisionBlock = detectRoofCollision(pixel, dt);
       if (roofCollisionBlock) {
         pixel.vely = 0; 
         pixel.y = roofCollisionBlock.y + roofCollisionBlock.height; 
@@ -146,22 +147,22 @@ var createRoofer = function() {
     }
 
     if (left) {
-      var horizontalCollisionBlock = detectCollisionLeft(pixel);
+      var horizontalCollisionBlock = detectCollisionLeft(pixel, dt);
       if (horizontalCollisionBlock) {
         pixel.x = horizontalCollisionBlock.x + horizontalCollisionBlock.width;
       } else if (canMoveLeft()){
-        pixel.x -= pixel.speed;
+        pixel.x -= pixel.speed * dt;
       }
     } else if (right) {
-      var horizontalCollisionBlock = detectCollisionRight(pixel); 
+      var horizontalCollisionBlock = detectCollisionRight(pixel, dt); 
       if (horizontalCollisionBlock) {
         pixel.x = horizontalCollisionBlock.x - pixel.width; 
       } else if (canMoveRight()){
-        pixel.x += pixel.speed; 
+        pixel.x += pixel.speed * dt; 
       }
     }
 
-    var groundCollisionBlock = detectGroundCollision(pixel);
+    var groundCollisionBlock = detectGroundCollision(pixel, dt);
     if (groundCollisionBlock) {
       grounded = true;
       canJump = true;
@@ -172,8 +173,8 @@ var createRoofer = function() {
     }
 
     if (!grounded) {
-      pixel.y += pixel.vely; 
-      pixel.vely += grav;
+      pixel.y += pixel.vely * dt;
+      pixel.vely += grav * dt;
     }
 
     if (grounded && canJump && jump) {
@@ -187,20 +188,20 @@ var createRoofer = function() {
     }
   }
 
-  function moveWorld () {
+  function moveWorld (dt) {
     if (left && camera.x <= 0) {
       return; 
     }
 
     if (right && (pixel.x + pixel.width >= canvas.width - camera.boxBound)) {
-      camera.x += pixel.speed; 
+      camera.x += pixel.speed * dt; 
       for (var i=0, len = gameState.entities.length; i < len; i++) {
-        gameState.entities[i].x -= pixel.speed; 
+        gameState.entities[i].x -= pixel.speed * dt; 
       }
     } else if (left && (pixel.x <= camera.boxBound)) {
-      camera.x -= pixel.speed; 
+      camera.x -= pixel.speed * dt; 
       for (var i=0, len = gameState.entities.length; i < len; i++) {
-        gameState.entities[i].x += pixel.speed; 
+        gameState.entities[i].x += pixel.speed * dt; 
       }
     } 
   }
@@ -227,15 +228,14 @@ var createRoofer = function() {
     )
   }
     
-  function detectCollisionLeft (entity) {
-    var { length } = gameState.blocks; 
-    for (var i=0; i<length; i++) {
+  function detectCollisionLeft (entity, dt) {
+    for (var i=0; i<gameState.blocks.length; i++) {
       var block = gameState.blocks[i]; 
-      if (entity.y + entity.height > block.y &&
+      if (left &&
+          entity.y + entity.height > block.y &&
           entity.y < block.y + block.height && 
-          left &&
-          entity.x - entity.speed  < block.x + block.width &&
-          entity.x + entity.width - entity.speed > block.x)
+          entity.x - (entity.speed * dt) < block.x + block.width &&
+          entity.x + entity.width - (entity.speed * dt) > block.x)
       {
         return block; 
       }
@@ -243,15 +243,14 @@ var createRoofer = function() {
     return false; 
   }
 
-  function detectCollisionRight (entity) {
-    var { length } = gameState.blocks; 
-    for (var i=0; i<length; i++) {
+  function detectCollisionRight (entity, dt) {
+    for (var i=0; i<gameState.blocks.length; i++) {
       var block = gameState.blocks[i]; 
-      if (entity.y + entity.height > block.y &&
+      if (right && 
+          entity.y + entity.height > block.y &&
           entity.y < block.y + block.height && 
-          right &&
-          entity.x + entity.width + entity.speed > block.x && 
-          entity.x + entity.speed < block.x + block.width) 
+          entity.x + entity.width + (entity.speed * dt) > block.x && 
+          entity.x + (entity.speed * dt) < block.x + block.width) 
       {
         return block; 
       }
@@ -259,7 +258,7 @@ var createRoofer = function() {
     return false; 
   }
 
-  function detectRoofCollision (entity) {
+  function detectRoofCollision (entity, dt) {
     var { length } = gameState.blocks; 
     for (var i=0; i<length; i++) {
       var block = gameState.blocks[i]; 
@@ -269,7 +268,7 @@ var createRoofer = function() {
         block.x < entity.x + entity.width && 
         block.x + block.width > entity.x &&
         //entity is ABOUT to collide with block
-        entity.y + entity.vely <= block.y + block.height) 
+        entity.y + (entity.vely * dt) <= block.y + block.height) 
       {
         return block;
       }
@@ -277,7 +276,7 @@ var createRoofer = function() {
     return false; 
   }
 
-  function detectGroundCollision (entity) {
+  function detectGroundCollision (entity, dt) {
     var { length } = gameState.blocks; 
     for (var i=0; i<length; i++) {
       var block = gameState.blocks[i]; 
@@ -287,7 +286,7 @@ var createRoofer = function() {
         block.x < entity.x + entity.width && 
         block.x + block.width > entity.x &&
         //entity is ABOUT to collide with block
-        entity.y + entity.height + entity.vely >= block.y) 
+        entity.y + entity.height + (entity.vely * dt) >= block.y) 
       {
         return block; 
       }
@@ -359,21 +358,24 @@ var createRoofer = function() {
 
   // Game Loop ---
   function update (time) { // browser generated timestamp 
-
-    if (!roofer.quit) {
-
-      if (gameState.gameOver) {
-        drawGameOverScreen();
-        doom(); 
-        loadLevel(); // TODO(shaw): decide whos responsible for this after gameover 
-      } else {
-        movePixel();
-        moveWorld();
-        draw();
-        requestAnimationFrame(update);
-      }
-
+    if (roofer.quit) {
+      return;
     }
+
+    var dt = time - gameState.prevFrame;
+    gameState.prevFrame = time;
+
+    if (gameState.gameOver) {
+      drawGameOverScreen();
+      doom(); 
+      loadLevel(); // TODO(shaw): decide whos responsible for this after gameover 
+    } else {
+      movePixel(dt);
+      moveWorld(dt);
+      draw();
+      requestAnimationFrame(update);
+    }
+
   }
 
   function doom () {
@@ -386,10 +388,6 @@ var createRoofer = function() {
 
     pixel.x = 20;  
     pixel.y = 40;
-    pixel.width = 50;
-    pixel.height = 50;
-    pixel.speed = 10;
-    pixel.jumpSpeed = 30; 
     pixel.vely = 0; 
 
     camera.x = 0; 
@@ -424,7 +422,8 @@ var createRoofer = function() {
       buildings: [],
       foreground: [],
       started: false,
-      gameOver: false
+      gameOver: false,
+      prevFrame: 0
     }
 
   }
