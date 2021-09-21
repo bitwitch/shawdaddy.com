@@ -1,6 +1,6 @@
 function createPlasma() {
-    var WINDOW_WIDTH  = 850;
-    var WINDOW_HEIGHT = 650;
+    var WINDOW_WIDTH;
+    var WINDOW_HEIGHT;
     var gl;
 
     function Demo() {
@@ -22,6 +22,9 @@ function createPlasma() {
     Demo.prototype.run = function() {
 
         // must create a new canvas because the existing canvas has a 2d context
+        var screen = document.getElementById('screen');
+        WINDOW_WIDTH = screen.clientWidth;
+        WINDOW_HEIGHT = screen.clientHeight;
         this.canvas = document.createElement('canvas');
         this.canvas.width = WINDOW_WIDTH;
         this.canvas.height = WINDOW_HEIGHT;

@@ -12,10 +12,6 @@ var commands = {
 	"touch": cmdTouch
 };
 
-// constants
-var OFFSET_FROM_TOP_OF_MONITOR = 724,
-	MAX_CHARS = 80;
-
 // globals ('file' scoped)
 var compScreen, 
 	overlay,
@@ -23,6 +19,7 @@ var compScreen,
 	curLineNum,
 	curLineCharCount,
 	visibleCount,
+  maxLineChars,
 	root,
 	workingDirectory,
 	prompt,
@@ -40,8 +37,9 @@ function init () {
 	overlay = document.getElementById('overlay');
 	curLine = document.getElementById('line1');
 	curLineNum = 1; 
-	curLineCharCount = 0; 
+	curLineCharCount = 4; 
 	visibleCount = 1;
+  maxLineChars = compScreen.clientWidth < 850 ? 76 : 80;
 	prompt = ">>$ ";
 
 	document.addEventListener('keydown', handleInput);
@@ -179,7 +177,7 @@ function handleInput(e) {
 		return;
 	}
 
-	if (curLineCharCount >= MAX_CHARS) {
+	if (curLineCharCount >= maxLineChars) {
 		curLine.textContent += '\n'; 
 		curLineCharCount = 0;
 	}
@@ -458,7 +456,7 @@ function deleteChar() {
 	curLine.textContent = text.slice(0, text.length - 1); 
 	// TODO(shaw): take a closer look at text wrapping 
 	curLineCharCount = (text[text.length-1] === '\n') 
-        ? MAX_CHARS 
+        ? maxLineChars 
         : curLineCharCount - 1; 
 }
 
@@ -473,7 +471,7 @@ function createNewline() {
   curLineCharCount = prompt.length;
 
 	// TODO(shaw): this is placeholder screen overflow, fix this shit later
-	if (curLine.offsetTop >= OFFSET_FROM_TOP_OF_MONITOR) {
+	if (curLine.offsetTop+20 + 15 >= compScreen.clientHeight) {
 		cmdCls(); 
 	}
 }

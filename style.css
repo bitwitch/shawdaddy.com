@@ -129,6 +129,11 @@ body {
 	height: 100%;
 	z-index: 1;
 	background-color: #440eac;
+  border-radius: 10px;
+}
+
+canvas {
+  border-radius: 10px;
 }
 
 .cursor::after {
@@ -159,6 +164,7 @@ body {
 }
 
 #line0 { padding-top: 15px; }
+
 
 
 /* SMALL DESKTOP */
