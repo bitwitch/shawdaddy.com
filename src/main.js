@@ -191,8 +191,8 @@ function cmdHelp(args) {
 `cd <dir>      change the current directory to DIR
 ls            list directory contents
 pwd           print the current working directory
-cat <file>    copies each FILE (or standard input) to standard output
-run <file>    execute FILE
+cat <file>    print the contents of a FILE
+run <file>    execute a FILE
 cls           clear screen
 
 press 'q' to quit a running program
