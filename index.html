@@ -9,21 +9,31 @@
 </head>
 <body>
 	<div class="container">
-		<div id="screen">
-			<pre id="line0" class="line">WELCOME. TYPE HELP TO VIEW COMMANDS.</pre>
-			<!-- <pre id="line0" class="line">10 PRINT CHR$(205.5+RND(1)); : GOTO 10</pre> -->
-			<pre id="line1" class="line cursor"></pre>
+    <div id="monitor">
 
-			<div id="sticky1">
-				<div>/home/games</div>
-				<div>>>$ run invaders</div>
-			</div>
+      <div class="model-name">SD6969DX</div>
+      <div id="floppy_drive">
+        <div class="slot-floppy"></div>
+        <div class="slot-fingers"></div>
+      </div>
+      <div id="sticky1">
+        <div>/home/games</div>
+        <div>>>$ run invaders</div>
+      </div>
 
-			<div id="glow"></div>
-			<div id="overlay">
-        <canvas id="stage" width="850" height="650"></canvas>
-			</div>
-		</div>
+      <div id="monitor_border">
+        <div id="glow"></div>
+        <div id="screen">
+          <pre id="line0" class="line">WELCOME. TYPE HELP TO VIEW COMMANDS.</pre>
+          <!-- <pre id="line0" class="line">10 PRINT CHR$(205.5+RND(1)); : GOTO 10</pre> -->
+          <pre id="line1" class="line cursor">>>$ </pre>
+
+          <div id="overlay">
+            <canvas id="stage" width="850" height="650"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
 
 		<div class="mobile">
 			<h3 class="exception">Unhandled exception at 0x01A3CF06 in shawdaddy.exe: 0xC00000FD: Tiny device detected.</h3>

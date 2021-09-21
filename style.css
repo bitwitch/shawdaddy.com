@@ -17,7 +17,7 @@
 body { 
 	background-color: #0D0230; 
 	height: 100%;
-  	overflow: hidden;
+  overflow: hidden;
 }
 
 .container {
@@ -27,15 +27,64 @@ body {
 	min-height: 98vh;
 }
 
-
-#screen {
+#monitor {
 	position: relative;
-	background-color: #440EAC;
-	padding: 100px 275px 100px 100px;
+	background-color: #302E35;
+	padding: 100px 300px 100px 100px;
 	width: 850px; 
 	height: 650px;
 	z-index: 0;
-	background-image: url('assets/monitor2.png');
+	border-radius: 10px;
+	margin: 0 auto;
+	/* box-shadow: 0 0 20px 10px #440EAC, 
+				0 0 103px 14px #540cc6, 
+				0 0 10px 10px #0ff; */
+}
+
+#monitor_border {
+  border: 25px solid #1A191B;
+  margin: -25px;
+}
+
+.model-name {
+  position: absolute;
+  transform: translateX(50%);
+  right: 145px;
+  top: 17%;
+  color: #73F95C;
+  font-size: 20px;
+  font-family: sans-serif;
+  font-weight: 100;
+  letter-spacing: 0.05em;
+}
+
+#floppy_drive {
+  position: absolute;
+  transform: translateX(50%);
+  right: 125px;
+  bottom: 75px;
+}
+
+#floppy_drive .slot-floppy {
+  background-color: #131413;
+  width: 25px;
+  height: 275px;
+  margin: auto;
+}
+
+#floppy_drive .slot-fingers {
+  background-color: #131413;
+  width: 55px;
+  height: 105px;
+}
+
+#screen {
+  position: relative;
+	background-color: #440EAC;
+	margin: 100px 275px 100px 100px;
+	width: 850px; 
+	height: 650px;
+	z-index: 0;
 	border-radius: 10px;
 	margin: 0 auto;
 	/* box-shadow: 0 0 20px 10px #440EAC, 
@@ -60,13 +109,12 @@ body {
 
 #glow {
 	position: absolute;
-	z-index: -1;
 	top: 100px;
-	left: 75px;
-    width: 850px;
-    height: 650px;
-    border-radius: 10px;
-    background-color: #440EAC;
+	left: 100px;
+  width: 850px;
+  height: 650px;
+  border-radius: 10px;
+  background-color: #440EAC;
 	box-shadow: 0 0 20px 10px #440EAC, 
 				0 0 103px 14px #540cc6, 
 				0 0 10px 10px #0ff
@@ -75,10 +123,10 @@ body {
 #overlay {
 	display: none;
 	position: absolute;
-	top: 100px; 
-	left: 75px; 
-	width: 850px; 
-	height: 650px;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
 	z-index: 1;
 	background-color: #440eac;
 }
@@ -107,10 +155,41 @@ body {
 	margin: 0; 
 	color: #8d6ff5;
 	text-transform: uppercase;
+  padding-left: 15px;
 }
 
 #line0 { padding-top: 15px; }
 
+
+/* SMALL DESKTOP */
+@media (max-width: 1440px) {
+  #monitor {
+    width: 800px;
+    height: 600px;
+    padding: 40px 275px 40px 40px;
+  }
+  #screen {
+    width: 800px;
+    height: 600px;
+  }
+  #glow {
+    width: 800px;
+    height: 600px;
+    top: 40px;
+    left: 40px;
+  }
+  #overlay {
+    width: 800px;
+    height: 600px;
+  }
+  #stage {
+    width: 800px;
+    height: 600px;
+  }
+}
+
+
+/* MOBILE */
 .mobile {
 	display: none;
 	color: #fff;
