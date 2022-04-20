@@ -128,6 +128,7 @@ function handleEnter() {
 }
 
 function handleInput(e) {
+  e.preventDefault();
 
 	// konami code
 	konami(e.key);
